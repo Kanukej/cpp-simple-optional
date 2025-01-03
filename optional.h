@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <utility>
+#include <memory>
 
 // Исключение этого типа должно генерироватся при обращении к пустому optional
 class BadOptionalAccess : public std::exception {
@@ -26,6 +27,13 @@ public:
     }
     Optional(Optional&& other) {
         *this = std::move(other);
+    }
+    
+    template <typename... Types>
+    void Emplace(Types&&... args) {
+        Reset();
+        new (data_) T(std::forward<Types>(args)...);
+        is_initialized_ = true;
     }
 
     Optional& operator=(const T& value) {
